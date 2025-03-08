@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String   @id @default(uuid())
+  name     String
+  email    String   @unique
+  password String
+  events   Event[]
+  tickets  Ticket[]
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  location    String
+  data        DateTime
+  price       Float
+  UserId      String
+  user        User     @relation(fields: [UserId], references: [id])
+  tickets     Ticket[]
+}
+
+model Ticket {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id])
+
+  qrcode String
+  status String @default("pending") // "panding"|"paid"|"used"
+}
